@@ -1,0 +1,82 @@
+//configuration file (named: applicationContext.xml)
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean id="myCoach"
+		class = "com.yashcode.springdemo.TrackCoach">
+	</bean>	
+</beans>
+
+
+
+//Java driver class 
+package com.yashcode.springdemo;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+public class HelloSpringApp {
+
+	public static void main(String[] args) {
+		//load the spring configuration file
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+		
+		//Retrieve bean from spring container
+		Coach theCoach = context.getBean("myCoach",Coach.class);
+		
+		//call methods on the bean
+		System.out.println(theCoach.getDailyWorkout());
+		
+		//close the context
+		context.close();	
+		}
+}
+
+
+//implementation class 1
+package com.yashcode.springdemo;
+public class TrackCoach implements Coach {
+
+	public TrackCoach() {
+	}
+
+	@Override
+	public String getDailyWorkout() {
+		// TODO Auto-generated method stub
+		return "Do 30mins Running";
+	}
+}
+
+
+//implementation class 2
+package com.yashcode.springdemo;
+public class BaseballCoach implements Coach{
+	
+  @Override
+	public String getDailyWorkout() {
+		return "Spend 30 mins on Baseball";
+	}
+}
+
+
+//interface Coach
+package com.yashcode.springdemo;
+public interface Coach {
+	public String getDailyWorkout();
+}
+
+
+
+
+//How the above code works:
+/* 
+* Now in the above code TrackCoach's getDailyWorkOut() method is printed as we mentioned TrackCoack in the class variable(class = "com.yashcode.springdemo.TrackCoach") in 
+* configuration file. If we replace the TrackCoach with BaseballCoach then the BaseballCoach's getDailyWorkOut() method is printed. Here we are only changing the 
+* configuration file but not the source code 
+* ''''''''The above approach is called "SPRING INVERSION OF CONTROL USING XML CONFIGURATION" '''''''''
+*/
+
