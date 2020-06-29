@@ -1,0 +1,131 @@
+/* Development Process - Injecting Literal Values 
+*  Create setter methods in the class for injections 
+*  Configure the injection in Spring config file
+*/
+
+
+//Coach interface
+package com.yashcode.springdemo;
+
+public interface Coach {
+	public String getDailyWorkout();
+	public String getDailyFortune();
+}
+
+
+//Class with fields 
+
+package com.yashcode.springdemo;
+
+public class CricketCoach implements Coach {
+
+	private FortuneService fortuneService;
+	
+	//literal injection 
+	private String emailAddress;
+	private String team;
+	
+	public CricketCoach() {
+		System.out.println("Inside Cricket Coach No-arg Constructor");
+	} 
+	
+	@Override
+	public String getDailyWorkout() {
+		return "Practice fast bowling!";
+	}
+
+	@Override
+	public String getDailyFortune() {
+		return fortuneService.getFortune();
+	}
+	
+	public void setFortuneService(FortuneService fortuneService) {
+		System.out.println("Inside setFortune method");
+		this.fortuneService = fortuneService;
+	}
+
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		System.out.println("Inside Email Address Set method");
+		this.emailAddress = emailAddress;
+	}
+
+	public String getTeam() {
+		return team;
+	}
+
+	public void setTeam(String team) {
+		System.out.println("Inside set team method");
+		this.team = team;
+	}
+}
+
+
+
+//spring configuration file 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<bean id = "myFortuneService" class="com.yashcode.springdemo.HappyFortuneService">
+	</bean>
+
+	<bean id="myCricketCoach"
+		class="com.yashcode.springdemo.CricketCoach">
+		<!-- Setter Injection -->
+	<property name ="fortuneService" ref="myFortuneService" />
+	
+		<!-- Literal Injection -->
+	<property name="emailAddress" value="abc@gmail.com"/>
+	<property name="team" value="India"/>
+	</bean>
+</beans>
+
+
+//Driver method 
+
+package com.yashcode.springdemo;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class SetterDemoApp {
+
+	public static void main(String[] args) {
+		//load the spring configuration file
+		ClassPathXmlApplicationContext context = 
+						new ClassPathXmlApplicationContext("applicationContext.xml");
+		
+		//retrieve the bean from spring container
+		CricketCoach theCoach = context.getBean("myCricketCoach",CricketCoach.class);
+		
+		//call methods on the bean
+		System.out.println(theCoach.getDailyWorkout());
+		
+		System.out.println(theCoach.getDailyFortune());
+		
+    //call the new methods to get the literal values
+		System.out.println(theCoach.getEmailAddress());
+		
+		System.out.println(theCoach.getTeam());
+		
+		//close the context
+		context.close();
+	}
+}
+
+
+
+
+
+
+
+
+
