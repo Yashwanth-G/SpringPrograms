@@ -1,0 +1,135 @@
+/*  Constructor Injection - Development Process
+**
+*   Define the dependency interface and class 
+*   Create a constructor in your class for injections 
+*   Configure the dependency injection in Spring config file
+*/
+
+//creating interface  
+package com.yashcode.springdemo;
+public interface FortuneService {
+	public String getFortune();
+}
+
+//creating constrctors for injection in the class 
+
+package com.yashcode.springdemo;
+public class BaseballCoach implements Coach{
+	
+  //define a private field for the dependency 
+  private FortuneService fortuneService;
+  
+  //define a constructor for ependency injection 
+	public BaseballCoach(FortuneService theFortuneService) {
+		fortuneService = theFortuneService;
+	}
+  
+	@Override
+	public String getDailyWorkout() {
+		return "Spend 30 mins on Baseball";
+	}
+	
+  @Override
+	public String getDailyFortune() {
+		return fortuneService.getFortune();
+	}
+}
+
+
+
+
+//creating constrctors for injection in the class
+
+package com.yashcode.springdemo;
+
+public class TrackCoach implements Coach {
+	
+	private FortuneService fortuneService;
+	public TrackCoach() {
+	}
+	public TrackCoach(FortuneService fortuneService) {
+		this.fortuneService = fortuneService;
+	}
+
+	@Override
+	public String getDailyWorkout() {
+		// TODO Auto-generated method stub
+		return "Do 30mins Running";
+	}
+
+	@Override
+	public String getDailyFortune() {
+		return "TrackCoach " + fortuneService.getFortune();
+	}
+
+}
+
+
+//Config file 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<bean id = "myFortuneService" 
+        class="com.yashcode.springdemo.HappyFortuneService">
+	</bean>
+
+	<bean id="myCoach"
+		class = "com.yashcode.springdemo.BaseballCoach">
+		<!-- Constructor Injection -->
+		<constructor-arg ref ="myFortuneService"/>
+	</bean>	
+</beans>
+
+
+
+// Driver class 
+
+package com.yashcode.springdemo;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class HelloSpringApp {
+
+	public static void main(String[] args) {
+		//load the spring configuration file
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+		
+		//Retrieve bean from spring container
+		Coach theCoach = context.getBean("myCoach",Coach.class);
+		
+		//call methods on the bean
+		//Baseball coach class's getDailyWorkout() method will be executed 
+    System.out.println(theCoach.getDailyWorkout());
+    
+    //Baseball coach class's getDailyFortune() method will be executed
+		System.out.println(theCoach.getDailyFortune());
+		
+		//close the context
+		context.close();	
+		}
+}
+
+
+/* Note: In the configuration we have given BaseballCoach class hence now the spring will object named myCoach for BaseballCoach's class
+*  If we change the class name to TrackCoach then it will create object for that TrackCoach's class.
+**
+*  Here, the constructor used for object object creation is argument constrcutor, the argument passed to the constructor is value of
+*  constructor-arg ref which is mentioned in configuration file.
+* This process is called "DEPENDENCY INJECTION USING XML CONFIGURATION WITH HELP OF CONSTRUCTOR"
+*/
+
+
+
+
+
+
+
+
+
+
