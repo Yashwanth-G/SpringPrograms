@@ -1,0 +1,149 @@
+//Bean Lifecycle
+
+Step1: Container Started 
+Step2: Bean Instantiated
+Step3: Dependencies Injected 
+Step4: Internal Spring Processing
+Step5: Your custom Init Method
+Step6: Bean is ready for use 
+Step7: Container is shutdown 
+Step8: Your custom destroy Method
+Step9: Stop
+
+* You can add custom code during bean initialization:
+*    *Calling custom business logic methods 
+*    *Setting up handles to resources (db, sockets, file, etc)
+***
+* You can add custom code during bean destruction:
+*    *Calling custom business logic methods
+*    *Clean up handles to resources (db, sockets, files , etc)
+
+
+/* Development Process: 
+*  Define the methods for init and destroy
+*  Configure the method names in Spring config file 
+*
+*
+*
+*
+*  Note: Special Note about init and destroy Method Signatures:
+*
+*  When using XML configuration, the additional details regarding the method signatures of the init-method and destroy-method are:
+*
+*  Access modifiers:
+*  The method can have any access modifier (public, protected, private)
+*
+*  Return type of the methods:
+*  The method can have any return type. However, "void' is most commonly used. If you give a return type just note that you will not be able to capture the return value.
+*  As a result, "void" is commonly used.
+*
+*  Method names:
+*  The method can have any method name.
+*
+*  Arguments:
+*  The method can not accept any arguments. The method should be no-arg
+*/
+
+
+
+
+//Driver code
+
+package com.yashcode.springdemo;
+
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class BeanLifeCycleDemoApp {
+
+	public static void main(String[] args) {
+		// load the spring configuration file 
+		ClassPathXmlApplicationContext context = new 
+				ClassPathXmlApplicationContext("beanLifeScope-applicationContext.xml");
+		
+		
+		//retrieve bean from spring container
+		Coach theCoach = context.getBean("myCoach",Coach.class);
+		
+		System.out.println(theCoach.getDailyWorkout());
+		//close the context 
+		context.close();
+	}
+
+}
+
+
+//Config file
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	
+	<bean id = "myFortuneService" 
+		class="com.yashcode.springdemo.HappyFortuneService">
+	</bean>
+
+	<bean id="myCoach"
+		class = "com.yashcode.springdemo.TrackCoach"
+		init-method="doMyStartUpStuff"
+		destroy-method="doMyCleanUpStuff">
+		
+		<!-- Constructor Injection -->
+		<constructor-arg ref ="myFortuneService"/>
+	</bean>
+	
+</beans>
+
+
+//creating init and destroy methods 
+
+package com.yashcode.springdemo;
+
+public class TrackCoach implements Coach {
+	
+	private FortuneService fortuneService;
+	public TrackCoach() {
+	}
+	public TrackCoach(FortuneService fortuneService) {
+		this.fortuneService = fortuneService;
+	}
+
+	@Override
+	public String getDailyWorkout() {
+		// TODO Auto-generated method stub
+		return "Do 30mins Running";
+	}
+
+	@Override
+	public String getDailyFortune() {
+		return "TrackCoach " + fortuneService.getFortune();
+	}
+	
+	// add an init method/hook
+	public void doMyStartUpStuff() {
+		System.out.println("TrackCoach: inside method doMyStartUpStuff");
+	}
+	
+	// add a destory method/hook 
+	public void doMyCleanUpStuff() {
+		System.out.println("TrackCoach: inside method doMyCleanUpStuff");
+	}
+}
+
+
+
+/****** Note: For "prototype" scoped beans, Spring does not call the destroy method automatically when the bean is closed by using close() method unlike in singletion bean scope.
+***     This also applies to both XML configuration and Annotation-based configuration. 
+***     The prototype scoped beans MUST implement the DisposableBean interface. 
+*****   This interface defines a "destory()" method.
+*/
+
+
+
+
+
